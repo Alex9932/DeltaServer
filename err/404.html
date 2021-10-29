@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<style>
+            body {
+                color: #eee;
+                margin: 0px;
+                background: #111;
+            }
+            
+            #img {
+                width: 256px;
+                height: 144px;
+                position: fixed;
+                bottom: 0;
+                right: 0;
+                background-image: url("/image/ui/e404.png");
+                background-repeat: no-repeat;
+                background-size:  cover;
+                background-position: bottom;
+            }
+            
+            #content {
+                margin: 0px auto;
+            }
+            
+            #content * {
+                margin: 5px;
+                display: block;
+                text-align: center;
+            }
+            
+            #content h1 {
+                margin: 10px;
+                display: block;
+                text-align: center;
+            }
+            #line {
+                margin-top: 10px;
+                border: 1px dashed #555;
+            }
+		</style>
+		<title>File not found ¯\_(ツ)_/¯</title>
+	</head>
+	<body>
+        <div id="content">
+            <h1>Что-то пошло не так :(</h1>
+            <h4>Something went wrong :(</h4>
+            <em><small>The requested URL %ACCESS_FILE% was not found on this server.</small></em><br>
+            <div id="line"></div>
+            <em><small>%PLATFORM% / %SERVER% %VERSION%</small></em>
+            <em><small>Alex9932 2018 - 2021 All right reserved</small></em>
+		</div>
+		<div id="img"></div>
+	</body>
+</html>
