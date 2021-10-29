@@ -4,8 +4,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Main {
-	public static final String SERVER = "jserver";
-	public static final String VERSION = "1.4";
+	public static final String SERVER     = "deltaserver";
+	public static final String VERSION    = "1.4";
+	public static final String BUILD_NAME = "Darkness";
 	
 	public static String PLATFORM = "none";
 	public static int SERVER_PORT = 8080;

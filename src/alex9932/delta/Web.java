@@ -38,6 +38,7 @@ public class Web {
 			.replace("%PLATFORM%", Main.PLATFORM)
 			.replace("%SERVER%", Main.SERVER)
 			.replace("%VERSION%", Main.VERSION)
+			.replace("%BUILD_NAME%", Main.BUILD_NAME)
 			.replace("%ACCESS_FILE%", addr).getBytes());
 	}
 
