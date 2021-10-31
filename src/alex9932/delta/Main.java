@@ -23,7 +23,7 @@ public class Main {
 	public static int SECURE_PORT = 443;
 	public static boolean running = true;
 
-	private static boolean isHTTP = false; // Temporary disabled
+	private static boolean isHTTP = false;
 	private static boolean isHTTPS = true;
 
 	public static void main(String[] args) {
