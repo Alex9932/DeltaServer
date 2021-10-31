@@ -29,7 +29,7 @@ public class HTTP {
 	
 	public static String buildResponse(String status, String contentType, long contentLength) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("HTTP/1.x ");
+		sb.append("HTTP/3 ");
 		sb.append(status);
 		sb.append("\n");
 
