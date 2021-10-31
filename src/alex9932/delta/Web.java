@@ -20,7 +20,7 @@ public class Web {
 			out.write(buffer);
 		}
 		if (fin.available() > 0) {
-			final byte[] s_buffer = new byte[fin.available()];
+			byte[] s_buffer = new byte[fin.available()];
 			fin.read(s_buffer, 0, s_buffer.length);
 			out.write(s_buffer);
 		}

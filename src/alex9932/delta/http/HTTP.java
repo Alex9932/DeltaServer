@@ -35,7 +35,7 @@ public class HTTP {
 
 		append(sb, "Server", Main.SERVER);
 		append(sb, "Content-Type", String.valueOf(contentType));
-		append(sb, "ontent-Length", String.valueOf(contentLength));
+		append(sb, "Content-Length", String.valueOf(contentLength));
 		
 		sb.append("\n");
 		return sb.toString();
