@@ -1,5 +1,5 @@
-# DeltaServer
+## DeltaServer
 Java web server
-
-# Todo
-- HTTPS
+### Features
+- HTTP & HTTPS support
+- Mime types handling
