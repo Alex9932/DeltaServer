@@ -48,7 +48,8 @@ public class Handler implements Runnable {
 			.replace("%ACCESS_FILE%", addr).getBytes());
 	}
 
-	private void methodGET(InputStream in, OutputStream out, Socket socket, String addr) throws IOException {
+	private void methodGET(InputStream in, OutputStream out, Socket socket, HTTPRequest request) throws IOException {
+		String addr = request.getAddress();
 		if (addr.equals("/")) {
 			addr = "/index.html";
 		}
@@ -67,8 +68,21 @@ public class Handler implements Runnable {
 		}
 	}
 
-	private void methodPOST(InputStream in, OutputStream out, Socket socket, String addr) throws IOException {
-		// NOT IMPLEMENTED YET
+	private void methodPOST(InputStream in, OutputStream out, Socket socket, HTTPRequest request, byte[] buffer) throws IOException { // NOT IMPLEMENTED YET
+		String str = "NOT IMPLEMENTED YET\n";
+		System.out.print("[HTTP] POST: " + str);
+		
+		byte[] array = new byte[buffer.length - request.getHeaderLength()];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = buffer[i + request.getHeaderLength()];
+		}
+		
+		String data = new String(array);
+		System.out.println("[HTTP] POST: DATA: " + data);
+		
+		String header = HTTP.buildResponse(HTTP.HTTP_OK, "text/plain", str.length());
+		out.write(header.getBytes()); // Sending header
+		out.write(str.getBytes());
 	}
 	
 	@Override
@@ -89,14 +103,16 @@ public class Handler implements Runnable {
 			System.out.println("[HTTP] " + req.getMethod() + ": " + socket.getInetAddress().getHostAddress() + " => " + req.getAddress());
 			
 			if(req.getMethod().equals("GET")) {
-				methodGET(in, out, socket, req.getAddress());
+				methodGET(in, out, socket, req);
 			} else if(req.getMethod().equals("POST")) {
-				methodPOST(in, out, socket, req.getAddress());
+				methodPOST(in, out, socket, req, buffer);
 			}
 			
 			socket.close();
 		} catch (Exception e) {
 			System.out.println("ERR: " + e);
+			if(Main.isDEBUG)
+				e.printStackTrace();
 		}
 	}
 }

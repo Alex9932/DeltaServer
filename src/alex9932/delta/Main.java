@@ -11,22 +11,28 @@ public class Main {
 	public static int SERVER_PORT = 80;
 	public static int SECURE_PORT = 443;
 	public static boolean running = true;
+	public static boolean isDEBUG = false;
+	public static boolean isHTTP = true;
+	public static boolean isHTTPS = false;
 
-	private static boolean isHTTP = true;
-	private static boolean isHTTPS = false;
-
-	//-secure -nohttp -ports 8443
 	public static void main(String[] args) {
 		PLATFORM = String.valueOf(
-				System.getProperty("os.name")) +
-				" " + System.getProperty("os.version") +
-				" " + System.getProperty("os.arch");
+			System.getProperty("os.name")) + " " +
+			System.getProperty("os.version") + " " +
+			System.getProperty("os.arch");
+		
 		if(parseCommandLine(args) != 0)
-			System.exit(-1); // Exit
+			System.exit(-1);
 		
 		System.out.println("Platform: " + PLATFORM);
-
 		System.out.println(SERVER + " " + VERSION + " (" + BUILD_NAME + ") is starting up...");
+
+		if(isDEBUG) {
+			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			System.out.println("WARNING: Server runned in DEBUG profile!");
+			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		}
+		
 		try {
 			if(isHTTP)
 				Server.startHTTP();
@@ -47,8 +53,10 @@ public class Main {
 		}
 		
 		for (int i = 0; i < args.length; i++) {
-			if(args[i].equals("-secure")) {
-				isHTTPS = true;
+			if(args[i].equals("-debug")) {
+				isDEBUG = true;
+			} else if(args[i].equals("-secure")) {
+					isHTTPS = true;
 			} else if(args[i].equals("-nohttp")) {
 				isHTTP = false;
 			} else if(args[i].equals("-port")) {
@@ -93,11 +101,10 @@ public class Main {
 		System.out.println(" -ports <https port>  Set HTTPS server port (default 443)");
 		System.out.println("");
 		System.out.println("Usage:");
-		System.out.println(" java -jar server.jar -secure -nohttp -port 8080 -ports 8443");
+		System.out.println(" java -jar server.jar -secure -nohttp -ports 8443");
 	}
 
 	private static void printVersion() {
-		System.out.println(SERVER + " " + VERSION + " (" + BUILD_NAME + ")");
-		System.out.println("Runned on " + PLATFORM);
+		System.out.println(SERVER + " " + VERSION + " (" + BUILD_NAME + ") on " + PLATFORM);
 	}
 }

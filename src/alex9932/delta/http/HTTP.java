@@ -18,11 +18,30 @@ public class HTTP {
 		String[] reqString = httpreq[0].split(" ");
 		
 		HTTPRequest request = new HTTPRequest(reqString[0], reqString[1], reqString[2]);
+
+		
+		int length = httpreq[0].length() + 1;
+
+		if(Main.isDEBUG)
+			System.out.println("[HTTP] REQUEST HEADER: ");
 		
 		for (int i = 1; i < httpreq.length; i++) {
-			String[] header = httpreq[i].split(":");
-			request.put(header[0].trim(), header[1].trim());
+			if(Main.isDEBUG)
+				System.out.println("[HTTP] HEADER: " + httpreq[i]);
+
+			length += httpreq[i].length() + 1;
+			if(httpreq[i].contains(":")) {
+				String[] header = httpreq[i].split(":");
+				request.put(header[0].trim(), header[1].trim());
+			} else { // End of header
+				break;
+			}
 		}
+
+		if(Main.isDEBUG)
+			System.out.println("[HTTP] LENGTH: " + length);
+		
+		request.setHeaderLength(length);
 		
 		return request;
 	}
@@ -40,5 +59,4 @@ public class HTTP {
 		sb.append("\n");
 		return sb.toString();
 	}
-
 }

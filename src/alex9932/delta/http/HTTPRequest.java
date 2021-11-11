@@ -8,6 +8,8 @@ public class HTTPRequest {
 	private String version;
 	private HashMap<String, String> headers;
 	
+	private int headerLength;
+	
 	public HTTPRequest(String method, String address, String version) {
 		this.headers = new HashMap<String, String>();
 		this.method = method;
@@ -35,4 +37,11 @@ public class HTTPRequest {
 		return version;
 	}
 
+	public int getHeaderLength() {
+		return headerLength;
+	}
+	
+	public void setHeaderLength(int headerLength) {
+		this.headerLength = headerLength;
+	}
 }

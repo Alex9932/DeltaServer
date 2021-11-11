@@ -32,7 +32,8 @@ public class Server implements Runnable {
 		} catch (Exception e) {
 			Main.running = false;
 			System.out.println("ERR: " + e);
-			e.printStackTrace();
+			if(Main.isDEBUG)
+				e.printStackTrace();
 		}
 	}
 	
