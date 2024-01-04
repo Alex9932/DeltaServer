@@ -2,9 +2,19 @@ package alex9932.delta.http;
 
 import alex9932.delta.Main;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 public class HTTP {
-	public static final String HTTP_OK = "200 OK";
-	public static final String HTTP_NOT_FOUND = "404 Not Found";
+	public static final String HTTP_200 = "200 OK";
+	public static final String HTTP_400 = "400 Bad Request";
+	public static final String HTTP_401 = "401 Unauthorized";
+	public static final String HTTP_403 = "403 Forbidden";
+	public static final String HTTP_404 = "404 Not Found";
+	public static final String HTTP_405 = "405 Method Not Allowed";
+	public static final String HTTP_500 = "500 Internal Server Error";
+	public static final String HTTP_501 = "501 Not Implemented";
 
 	private static void append(StringBuilder sb, String key, String value) {
 		sb.append(key);
@@ -13,42 +23,33 @@ public class HTTP {
 		sb.append("\n");
 	}
 	
-	public static HTTPRequest parseRequest(String req) {
-		String[] httpreq = req.split("\n");
-		String[] reqString = httpreq[0].split(" ");
+	public static HTTPRequest parse(InputStream in) throws IOException {
+		DataInputStream dis = new DataInputStream(in);
+		String line = "";
+		boolean first = true;
+		HTTPRequest request = null;
 		
-		HTTPRequest request = new HTTPRequest(reqString[0], reqString[1], reqString[2]);
-
+		while((line = dis.readLine()) != null && !line.trim().equals("")) {
+			if (Main.DEBUG) {
+				System.out.println("[HTTP]: " + line);
+			}
 		
-		int length = httpreq[0].length() + 1;
-
-		if(Main.isDEBUG)
-			System.out.println("[HTTP] REQUEST HEADER: ");
-		
-		for (int i = 1; i < httpreq.length; i++) {
-			if(Main.isDEBUG)
-				System.out.println("[HTTP] HEADER: " + httpreq[i]);
-
-			length += httpreq[i].length() + 1;
-			if(httpreq[i].contains(":")) {
-				String[] header = httpreq[i].split(":");
-				request.put(header[0].trim(), header[1].trim());
-			} else { // End of header
-				break;
+			String[] str;
+			if (first) {
+				first = false;
+				str = line.split(" ");
+				request = new HTTPRequest(str[0].trim(), str[1].trim(), str[2].trim());
+			} else {
+				str = line.split(":");
+				request.put(str[0].trim(), str[1].trim());
 			}
 		}
-
-		if(Main.isDEBUG)
-			System.out.println("[HTTP] LENGTH: " + length);
-		
-		request.setHeaderLength(length);
-		
 		return request;
 	}
 	
 	public static String buildResponse(String status, String contentType, long contentLength) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("HTTP/3 ");
+		sb.append("HTTP/1.1 ");
 		sb.append(status);
 		sb.append("\n");
 
@@ -57,6 +58,11 @@ public class HTTP {
 		append(sb, "Content-Length", String.valueOf(contentLength));
 		
 		sb.append("\n");
+		
+		if (Main.DEBUG) {
+			System.out.println("[HTTP]: Response:\n" + sb.toString());
+		}
+		
 		return sb.toString();
 	}
 }

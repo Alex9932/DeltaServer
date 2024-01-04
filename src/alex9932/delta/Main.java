@@ -4,23 +4,29 @@ import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-// https://github.com/Alex9932/DeltaServer
+import alex9932.delta.handlers.IRequestHandler;
+import alex9932.delta.handlers.STDHandler;
 
 public class Main {
 	public static final String SERVER     = "Deltaserver";
-	public static final String VERSION    = "1.7";
-	public static final String BUILD_NAME = "Roxy";
+	public static final String VERSION    = "2.1";
+	public static final String BUILD_NAME = "Megumin";
 	
-	public static String PLATFORM = "none";
-	public static int SERVER_PORT = 80;
-	public static int SECURE_PORT = 443;
-	public static boolean running = true;
-	public static boolean isDEBUG = false;
-	public static boolean isHTTP = true;
-	public static boolean isHTTPS = false;
+	public static String  KEY_STORE   = "keystore.jks";
+	public static String  KEY_PASS    = "certpassword";
 	
-	public static String MODULE = null;
-	public static String CLASS = "alex9932.delta.DefaultRequestHandler";
+	public static String  PLATFORM    = "unknown";
+	public static int     SERVER_PORT = 80;
+	public static int     BUFFER_SIZE = 32768;
+	public static boolean RUNNING     = true;
+	public static boolean DEBUG       = false;
+	public static boolean HTTPSECURE  = false;
+	
+	public static String  MODULE      = null;
+	public static String  CLASS       = "alex9932.delta.handlers.FileIOHandler";
+	
+	public static IRequestHandler handler = null;
+	public static Server          server  = null;
 
 	public static void main(String[] args) {
 		PLATFORM = String.valueOf(
@@ -30,15 +36,18 @@ public class Main {
 		
 		if(parseCommandLine(args) != 0)
 			System.exit(-1);
-		
-		System.out.println("Platform: " + PLATFORM);
-		System.out.println(SERVER + " " + VERSION + " (" + BUILD_NAME + ") is starting up...");
 
-		if(isDEBUG) {
+		printVersion();
+		System.out.println("Starting up...");
+		System.out.println("Platform: " + PLATFORM);
+
+		if(DEBUG) {
 			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 			System.out.println("WARNING: Server in running in DEBUG profile!");
 			System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		}
+		
+		handler = new STDHandler();
 		
 		try {
 			ClassLoader cl = Main.class.getClassLoader();
@@ -47,41 +56,44 @@ public class Main {
 				URL url = new URL("file://" + f.getAbsolutePath());
 				cl = URLClassLoader.newInstance(new URL[] {url}, Main.class.getClassLoader());
 			}
-			Class<?> clazz = Class.forName(CLASS, true, cl);
-//			Handler.setHandler((IRequestHandler)clazz.newInstance()); // Deprecated
-			Handler.setHandler((IRequestHandler)clazz.getDeclaredConstructor().newInstance());
+			Class<?> clazz = Class.forName(CLASS, true, (ClassLoader)cl);
+			handler = (IRequestHandler)clazz.getDeclaredConstructor().newInstance();
+			System.out.printf("Loaded module: %s\n", CLASS);
+			handler.onLoad();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 		
-		Handler.setHandler(new DefaultRequestHandler());
+		server = new Server();
 		
-		try {
-			if(isHTTP)
-				Server.startHTTP();
+		while(RUNNING) {
+			Thread server_thread = new Thread(server);
+			server_thread.start();
+			try {
+				server_thread.join();
+			} catch (InterruptedException ex) {
+				System.out.println(ex);
+			}
 			
-			if(isHTTPS)
-				Server.startHTTPS();
-		} catch (Exception e) {
-			Main.running = false;
-			System.out.println("ERR: " + e);
-			e.printStackTrace();
+			//if (RUNNING) {
+				System.out.println("SERVER INTERNAL ERROR! Restarting module...");
+			//}
 		}
+		
+		System.out.println("Server shutdown...");
 	}
 	
 	private static int parseCommandLine(String[] args) {
-		if(args.length == 0) {
-			printHelp();
-			return -1;
-		}
+//		if(args.length == 0) {
+//			printHelp();
+//			return -1;
+//		}
 		
 		for (int i = 0; i < args.length; i++) {
 			if(args[i].equals("-debug")) {
-				isDEBUG = true;
+				DEBUG = true;
 			} else if(args[i].equals("-secure")) {
-					isHTTPS = true;
-			} else if(args[i].equals("-nohttp")) {
-				isHTTP = false;
+				HTTPSECURE = true;
 			} else if(args[i].equals("-module")) {
 				if(i + 2 >= args.length) {
 					System.out.println("Invalid argument: " + args[i]);
@@ -98,14 +110,6 @@ public class Main {
 					return -1;
 				}
 				SERVER_PORT = Integer.parseInt(args[i + 1]);
-				i++;
-			} else if(args[i].equals("-ports")) {
-				if(i + 1 >= args.length) {
-					System.out.println("Invalid argument: " + args[i]);
-					printHelp();
-					return -1;
-				}
-				SECURE_PORT = Integer.parseInt(args[i + 1]);
 				i++;
 			} else if(args[i].equals("-h") || args[i].equals("-?") || args[i].equals("-help")) {
 				printHelp();
@@ -128,13 +132,12 @@ public class Main {
 		System.out.println(" -? / -h / -help               Print this help message");
 		System.out.println(" -v / -version                 Print version");
 		System.out.println(" -secure                       Use HTTPS");
-		System.out.println(" -nohttp                       Disable HTTP");
-		System.out.println(" -port <http port>             Set HTTP server port (default 80)");
-		System.out.println(" -ports <https port>           Set HTTPS server port (default 443)");
+		System.out.println(" -port <http port>             Set server port (default 80)");
 		System.out.println(" -module <module jar> <class>  Set request handler module");
 		System.out.println("");
 		System.out.println("Usage:");
-		System.out.println(" java -jar server.jar -secure -nohttp -ports 8443");
+		System.out.println(" Insecurejava -jar server.jar");
+		System.out.println(" java -jar server.jar -secure -port 443");
 	}
 
 	private static void printVersion() {
