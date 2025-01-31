@@ -4,6 +4,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server implements Runnable {
+	private int connections;
+	
+	public Server() {
+		this.connections = 0;
+	}
+	
 	public void run() {
 		ServerSocket sock = null;
 		
@@ -17,7 +23,10 @@ public class Server implements Runnable {
 			
 			while(Main.RUNNING) {
 				Socket s = sock.accept();
-				Thread t = new Thread(new ServerThread(s));
+				
+				// Start thread for new connection
+				Thread t = new Thread(new ServerThread(s, this));
+				connections++;
 				t.start();
 			}
 			
@@ -29,5 +38,14 @@ public class Server implements Runnable {
 			// Close socket if possible
 			try { sock.close(); } catch (Exception r) {}
 		}
+	}
+	
+	public int getConnections() {
+		return connections;
+	}
+
+	public void decrementConnection() {
+		if(this.connections <= 0) { return; }
+		this.connections--;
 	}
 }

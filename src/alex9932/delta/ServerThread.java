@@ -3,38 +3,36 @@ package alex9932.delta;
 import java.io.IOException;
 import java.net.Socket;
 
-import alex9932.delta.http.HTTP;
-import alex9932.delta.http.HTTPRequest;
-
 public class ServerThread implements Runnable {
 
-	private Socket s;
+	private Socket socket;
+	private Server server;
 	
-	public ServerThread(Socket s) {
-		this.s = s;
+	public ServerThread(Socket socket, Server server) {
+		this.socket = socket;
+		this.server = server;
 	}
 
 	@Override
 	public void run() {
 		try {
-			HTTPRequest request = HTTP.parse(this.s.getInputStream());
-			System.out.printf("[HTTP] %s %s => %s\n", request.getMethod(), this.s.getInetAddress().getHostAddress(), request.getAddress());
-			Main.handler.handle(request, this.s);
+			Main.handler.handle(this.socket);
 		} catch (Exception e) {
-			System.out.println("ERROR: " + e);
+			System.out.printf("ERROR: %s\n", e.toString());
 			if (Main.DEBUG) {
 				System.out.println("Stack: ");
 				e.printStackTrace(System.out);
 			}
 			
 			try {
-				this.s.close();
+				this.socket.close();
 			} catch (IOException  e2) {
 				e2.printStackTrace();
 			}
 			
 			System.out.println("[Thread] INTERNAL ERROR");
 		}
+		this.server.decrementConnection();
 	}
 
 }
