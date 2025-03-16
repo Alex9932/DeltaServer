@@ -12,7 +12,7 @@ public class Main {
 	
 	public static final String SERVER     = "Deltaserver";
 	/*
-	public static final String VERSION    = "2.x";
+	public static final String VERSION    = "3.x";
 	public static final String BUILD_NAME = "Dev build";
 	*/
 	public static final String VERSION    = "2.2";
@@ -182,7 +182,7 @@ public class Main {
 		System.out.println("");
 		System.out.println("Usage:");
 		System.out.println(" Insecurejava -jar server.jar");
-		System.out.println(" java -jar server.jar -secure -port 443");
+		System.out.println(" java -jar server.jar -secure <keystore> <passwd> -port 443");
 	}
 
 	private static void printVersion() {
